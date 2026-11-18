@@ -1,0 +1,5 @@
+"0","print(paste0(""This dataset has "", nrow(Black_index), "" rows and "", ncol(Black_index), "" columns. Each row in this dataset appears to describe a single article that appeared in newspaper between "", min(Black_index$year), "" and "", max(Black_index$year), "". The articles appear to have been sourced from several historical newspaper databases and archives.""))"
+"1","[1]"
+"1"," ""This dataset has 1803 rows and 30 columns. Each row in this dataset appears to describe a single article that appeared in newspaper between 1850 and 2002. The articles appear to have been sourced from several historical newspaper databases and archives."""
+"1","
+"

@@ -1,0 +1,2 @@
+"0","SF <- SF %>% "
+"0","  mutate(weekday = wday(call_date2, label=TRUE, abbr=FALSE))"

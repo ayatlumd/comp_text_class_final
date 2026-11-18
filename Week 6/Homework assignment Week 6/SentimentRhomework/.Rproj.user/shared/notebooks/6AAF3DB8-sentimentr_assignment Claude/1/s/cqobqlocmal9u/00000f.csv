@@ -1,0 +1,5 @@
+"0","articles_df <- read_csv(""articles_df.csv"")"
+"1","[1m[33mError[39m:[22m
+[38;5;232m[33m![38;5;232m ]8;;file:///Users/aigerim/Desktop/Code/JOUR689R/comp_text_class/Week 6/articles_df.csv[34marticles_df.csv[38;5;232m]8;; does not exist in current working directory: ]8;;file:///Users/aigerim/Desktop/Code/JOUR689R/comp_text_class/Week 6[34m/Users/aigerim/Desktop/Code/JOUR689R/comp_text_class/Week 6[38;5;232m]8;;.[39m
+[90mRun `]8;;x-r-run:rlang::last_trace()rlang::last_trace()]8;;` to see where the error occurred.[39m
+"

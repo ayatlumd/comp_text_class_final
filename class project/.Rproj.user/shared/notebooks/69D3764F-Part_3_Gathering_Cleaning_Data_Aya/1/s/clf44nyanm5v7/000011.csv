@@ -1,0 +1,6 @@
+"0","#Build a summary table with the days of the week with the greatest"
+"0","#number of calls. Create a graphic. Then build a table to see if the complaints vary by day"
+"0",""
+"0","SF %>%"
+"0","  count(call_date2) %>%"
+"0","  arrange(desc(n))"

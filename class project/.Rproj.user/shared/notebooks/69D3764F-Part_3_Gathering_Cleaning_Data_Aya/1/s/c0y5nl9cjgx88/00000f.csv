@@ -1,0 +1,7 @@
+"0","#Find out when nothing happened with the officer's investigation."
+"0","#A table filtering the dispositions column to show ""no disposition"" or ""gone on arrival"""
+"0",""
+"0","#GOA and ND codes"
+"0",""
+"0","SF%>%"
+"0","  filter(disposition%in% c(""ND"", ""GOA""))"

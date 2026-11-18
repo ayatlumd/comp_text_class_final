@@ -1,0 +1,94 @@
+---
+title: "Basic R Proficiency"
+author: "Aya"
+date: "2026-09-23"
+output: html_document
+---
+
+Homework: Basic R Proficiency
+
+# Load Libraries 
+```{r}
+library(tidytext)
+library(tidyverse)
+```
+
+# Import Data
+
+```{r}
+mob_data <- read.csv("https://raw.githubusercontent.com/wellsdata/CompText_Jour/main/data/mob_analysis_data.csv")
+```
+
+#Using code, describe the number of rows and columns in the dataset:
+#rows: 3836
+#columns: 7
+
+```{r}
+nrow(mob_data)
+ncol(mob_data)
+```
+
+#Create a table that displays a count of the top 15 newspaper entries
+
+```{r}
+  mob_data %>%
+  count(Newspaper) %>%
+  arrange(desc(n)) %>%
+slice_head(n = 15)
+```
+#AI used here to get the command slice_head n = 15 because slice max command did not work (perhaps, I needed to install some other package for it to work).
+
+#Top 15 articles are here:
+
+#1)NA 336
+#2)The Birmingham age-herald (Birmingham, Ala...)	118			
+#3)The daily worker (Chicago, Ill.)	64			
+#4)The Topeka state journal (Topeka, Kansas)	63			
+#5)The sun (New York [N.Y.]) 1833-1916	50			
+#6)The Seattle post-intelligencer (Seattle, Wash. ...)	49			
+#7)The San Francisco call (San Francisco [...)	46			
+#8)The morning news (Savannah, Ga.)	40			
+#9)Los Angeles herald (Los Angeles [Calif.]) 1900-1911	37			
+#10)Watertown republican (Watertown, Wis.)	36	
+#11)River Falls journal (River Falls, Pi...)	34			
+#12)Vernon County censor (Viroqua, Wis.)	30			
+#13)The Iola register (Iola, Allen Cou...)	29			
+#14)The Daily Ardmoreite (Ardmore, Okla.)	28			
+#15)The Salt Lake herald (Salt Lake City ...)	28
+
+#Create a table that counts the different entries in the "keyword" column
+
+```{r}
+mob_data %>%
+  count(keyword) %>%
+  arrange(desc(n))
+```
+#The table showed 37 rows in the keyword column. Top 3 words (rows) are mob (3273), masked (158) and mobs (96). 
+
+#Create a table that counts all specific articles by year
+
+```{r}
+years_ct_mob_data <- mob_data %>%
+  distinct(docname, .keep_all = TRUE) %>% 
+  count(Year)
+```
+#Using distinct function, I made a table by docname and Year column, which resulted in each year having a specific number of articles.
+
+#Create a simple column ggplot chart that shows the total entries by year
+
+```{r}
+ggplot(years_ct_mob_data,aes(x = Year, y = n,
+             fill = n)) +
+  geom_col(position = "dodge") + 
+  theme(legend.position = "none") +
+  labs(title = "Years of Mob Data Coverage",
+       subtitle = "Based on 3,836 extracted articles",
+       caption = "Graphic by Aya, 9-25-2026",
+       y="Articles",
+       x="Year")
+```
+
+#Memo 250 words
+
+As per the mob_data file, the most articles were written in years 1903 (120), 1901(102), and 1893(78). It is not really visible in the ggplot chart in my code. The most frequent keywords were mob (3273), masked (158), mobs (96), masked men (94), a party of (55), mob's (26), captors (21), mob- (19), and masks (15). The similar words such as "mob, mob's, mobs" or "masked, masked men" could have been merged. The word "a part of" does not carry a meaning, it could have been cleaned through "stop_words". What is interesting is that the majority of the articles (336) were written by unidentified newspapers (NA), followed by The Birmingham Age-Herald in Alabama (118), The Daily Worker in Chicago (64), and The Topeka State Journal in Kansas (63). Perhaps, it was the issue with text recognizing machines. The data given is not perfect. For example, in "The Washington Times" article of 1921 under docname 13751_0.txt, the beginning of the passage is missing, while the end is present. This is one of the dozens articles that are missing the beginning of passages. Sometimes it starts with "a" or random word like "georgia" or a dot. I am not sure how these passages work or if there is an issue with text recognizing. Overall, one trend is clear is that in early 1900s, there was the most coverage of the articles that had keywords “mob”, “masked”, “mobocracy” and etc. The file would improve with data cleaning and stop_words function.
+

@@ -1,0 +1,7 @@
+"0",""
+"0","#trump <- read_tsv(""trump_dallas_sept_9_2026.txt"")"
+"0","trump <- read.table(""trump_dallas_sept_9_2026.txt"", header = F, sep = ""\t"") |> "
+"0","  rename(text = V1) |> "
+"0","  mutate(text = str_replace(text, ""Trump:"", """")) |> "
+"0","  mutate(id = row_number())"
+"0",""

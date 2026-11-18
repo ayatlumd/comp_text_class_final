@@ -1,0 +1,5 @@
+"0","dugin1 <- dugin %>% "
+"0","  mutate(category = case_when(str_detect(sentence, regex(""Putin"", ignore_case = TRUE)) ~ ""Putin"","
+"0","                              str_detect(sentence, ""fascist"") ~ ""polarized_term"","
+"0","                                str_detect(sentence, ""brain"") ~ ""polarized_term"","
+"0","                                                     TRUE~ """")) "

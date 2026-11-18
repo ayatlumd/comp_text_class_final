@@ -1,0 +1,123 @@
+---
+title: "Bigrams_Week_5_Aya"
+author: "Aya"
+date: "2026-09-26"
+output: html_document
+---
+#Task: load tidyverse, tidytext, rio, janitor libraries
+#Answer: loaded
+```{r}
+
+library(tidyverse)
+library(tidytext)
+library(rio)
+library(janitor)
+
+```
+
+#Task: Import spreadsheet using rio::import and clean the names
+#Answer: Imported
+
+```{r}
+
+Xinjiang_Women <- rio::import("Xinjiang_Women.XLSX") 
+
+```
+#Task: Tokenize the hlead column
+
+Copy the code from the in-class bigrams exercise and tokenize just the hlead column from your dataframe
+
+Hint: you're changing just one variable
+
+#Answer: Changed the name of the data file to Xinjiang_women and renamed stories_tokenized to Hlead_tokenized as well as replaced "stories" with "Hlead" in the unnest_tokens field
+
+```{r}
+Hlead_tokenized <- Xinjiang_Women %>%
+  unnest_tokens(word, Hlead)
+
+Hlead_tokenized
+```
+
+
+#Task: Remove stopwords and count the words
+#Answer: Renamed the code to Hlead_tokenized, removed stopwords 
+
+```{r}
+
+data(stop_words)
+
+Hlead_tokenized <- Hlead_tokenized %>%
+  anti_join(stop_words, by = c("word" = "word")) %>%
+  filter(word != "temp_file") %>%
+  filter(word != "stories_corpus") %>%
+  filter(!grepl('[0-9]', word))
+
+```
+
+
+
+
+
+
+#Task: Create Bigrams
+#Answer: Renamed datafile to mine, replaced "stories" with "Hlead". 
+
+```{r}
+bigrams <- Xinjiang_Women %>%
+  unnest_tokens(bigram, Hlead, token="ngrams", n=2)
+
+bigrams
+
+
+```
+
+#Task: Filter out stop words.
+#Answer: done, renamed decade to "post2015", top 10 bigrams are below.
+
+```{r}
+data(stop_words)
+
+bigrams1 <- bigrams %>%
+  filter(!is.na(bigram)) |> 
+  separate(bigram, c("word1", "word2"), sep = " ")
+
+bigrams2 <- bigrams1 %>%
+  filter(!word1 %in% stop_words$word) %>%
+  filter(!word2 %in% stop_words$word) |> 
+  count(word1, word2, sort = TRUE) |> 
+  mutate(decade = "post2015") # label the range of your data
+
+head(bigrams2, 100)
+```
+
+# Top10 bigram results
+
+word1           word2         n       decade
+
+1	chinese	      embassy	      22	    post2015
+2	autonomous	  region	      21	    post2015
+3	uighur	      women	        20	    post2015
+4	birth	        control	      17	    post2015
+5	uygur	        autonomous	  17	    post2015
+6	xinjiang	    uygur	        17	    post2015
+7	chinese	      government	  16	    post2015
+8	human	        rights	      15	    post2015
+9	china	        daily	        13	    post2015
+10	xinjiang   	women	        12	    post2015
+
+
+#Task: Write 250 words about what your learned analyzing the list of tokens and bigrams. Include questions about the process and any difficulties you encountered.
+
+#Memo: 249 words
+
+What I did not understand in my tokenizing code, is if I write:
+
+unnest_tokens(word,Hlead) ==> it should tokenize Hlead by a single word, right? Because bigrams are two words. In my case it was just a full sentence. For example, after running my code in the first 10 rows it showed me this:
+
+"How women in Xinjiang shatter restraints, become vibrant community members". It is not a single word separation as was in the previous examples. According to tidytextmining.com book in the exampe of Jane Austen's book, it was unnest_tokens(word, text). However, only Hlead works for this data file. 
+
+When I got to bigrams, everything worked as expected and I received 2 words, count of words, which I posted above. 
+
+One interesting result from this data analyzing is that #top4 bigram words are "birth, control" which is a common coverage linked to women from this region who are forcibly sterilized, or made to do abortions.
+
+Overall, I can see value in analyzing bigrams because they show most frequent word pairing in the data file and it can tell something when you want to understand the specifics of the news content. I am not so sure about tokenizing part, maybe I missed something in the unnest code but I have read again the textbook and did everything as per last class's code, so I am still not sure where the problem lies. Also, I accidentally ran the bigram's code without tokenizing first and received the same results.

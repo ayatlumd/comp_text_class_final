@@ -1,0 +1,8 @@
+"0","extracted_text_oct_16_2024 <- read_csv(""https://osf.io/download/gw5dk/?view_only=6c106acd6cb54f6f849e8c6f9098809f"")"
+"0",""
+"0","lynch <- extracted_text_oct_16_2024 |> "
+"0","  filter(year > 1890 & year < 1895)"
+"0",""
+"0",""
+"0","extracted_articles_index <- read_csv(""extracted_articles_index_oct_16_2024.csv"")"
+"0",""

@@ -1,0 +1,161 @@
+---
+title: "Sentimentr Assignment"
+author: "Your Name"
+date: "2026-10-10"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(sentimentr)
+library(lubridate)
+library(magrittr)
+```
+
+# Import my data
+
+My file has one row per line of text, so I first put each article's lines back together into one row per article.
+
+```{r}
+articles_df <- read_csv("articles_df.csv")
+
+articles <- articles_df |> 
+  filter(!is.na(sentence)) |> 
+  group_by(filename) |> 
+  summarize(published_date = first(published_date),
+            text = paste(sentence, collapse = " ")) |> 
+  mutate(year = year(as.Date(published_date))) |> 
+  mutate(id = row_number()) |> 
+  select(id, year, text)
+
+nrow(articles)   # number of articles
+head(articles)
+```
+
+# Part 1: Sentiment for all articles
+
+```{r}
+articles_sentiment <- articles |> 
+  select(id, text) |> 
+  get_sentences() |> 
+  sentiment_by(by = c("id"))
+
+# add the scores back to my articles
+articles <- articles |> 
+  left_join(as_tibble(articles_sentiment) |> select(id, ave_sentiment), by = "id")
+```
+
+```{r}
+articles |> 
+  summarize(min = min(ave_sentiment),
+            max = max(ave_sentiment),
+            median = median(ave_sentiment),
+            sd = sd(ave_sentiment))
+```
+
+```{r}
+print(paste0("The most positive article was scored at ", max(articles$ave_sentiment),
+             " while the most negative was scored at ", min(articles$ave_sentiment),
+             ". For context, the median value was ", median(articles$ave_sentiment), "."))
+```
+
+# Part 2: Recent vs. older
+
+Use summarize() to see how many articles there are in each year, to pick a cutoff.
+
+```{r}
+articles |> 
+  group_by(year) |> 
+  summarize(number_of_articles = n(),
+            average_sentiment = mean(ave_sentiment))
+```
+
+Most of my articles are from 2021, and 2026 has only one article, so I chose 2022 as the cutoff. (Change this number if you choose a different year.)
+
+```{r}
+cutoff <- 2022
+
+recent <- articles |> filter(year >= cutoff)
+older  <- articles |> filter(year < cutoff)
+```
+
+## Recent years
+
+```{r}
+recent_sentiment <- recent |> 
+  select(id, text) |> 
+  get_sentences() |> 
+  sentiment_by(by = c("id"))
+
+as_tibble(recent_sentiment) |> 
+  summarize(min = min(ave_sentiment),
+            max = max(ave_sentiment),
+            median = median(ave_sentiment),
+            sd = sd(ave_sentiment))
+```
+
+## Older years
+
+```{r}
+older_sentiment <- older |> 
+  select(id, text) |> 
+  get_sentences() |> 
+  sentiment_by(by = c("id"))
+
+as_tibble(older_sentiment) |> 
+  summarize(min = min(ave_sentiment),
+            max = max(ave_sentiment),
+            median = median(ave_sentiment),
+            sd = sd(ave_sentiment))
+```
+
+# Part 3: Highlighter
+
+This highlights positive and negative sentences in all of my text. It opens in your web browser and also saves as polarity.html in your project folder.
+
+```{r}
+articles |> 
+  mutate(review = get_sentences(text)) %$%
+  sentiment_by(review, id) %>%
+  highlight(file = "polarity.html")
+```
+
+# Part 4: Emotion
+
+```{r}
+articles_emotion <- articles |> 
+  select(id, text) |> 
+  get_sentences() |> 
+  emotion()
+
+head(articles_emotion)
+```
+
+Average emotion score by emotion type (I removed the "negated" ones, like "not happy").
+
+```{r}
+emotion_summary <- articles_emotion |> 
+  filter(!str_detect(emotion_type, "negated")) |> 
+  group_by(emotion_type) |> 
+  summarize(average_emotion = mean(emotion)) |> 
+  arrange(desc(average_emotion))
+
+emotion_summary
+```
+
+```{r}
+ggplot(emotion_summary, aes(x = reorder(emotion_type, average_emotion), y = average_emotion)) +
+  geom_col() +
+  coord_flip() +
+  labs(x = "Emotion", y = "Average emotion score")
+```
+
+# My 300-word post
+
+**Part 1:** Across all 78 articles, sentiment scores ranged from ___ to ___. The median was ___ and the standard deviation was ___. This suggests the coverage is mostly ___.
+
+**Part 2:** I used summarize() to count articles by year. Most were from 2021, and 2026 has only one article, so I used 2022 as the cutoff. Recent articles (n = ___) had a minimum of ___, maximum of ___, median of ___ and standard deviation of ___. Older articles (n = ___) had a minimum of ___, maximum of ___, median of ___ and standard deviation of ___. The difference is ___.
+
+**Part 3:** The highlighter was useful because ___. But it has flaws: ___ (for example sarcasm, quotes, political language, or words that are scored out of context).
+
+**Part 4:** I used the emotion function. The strongest emotions were ___ and ___, and the weakest was ___. This tells me that ___. A limitation is ___.

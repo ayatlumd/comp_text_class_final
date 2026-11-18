@@ -1,0 +1,8 @@
+"0","ggplot(top_20_bigrams, aes(x = reorder(bigram, n), y = n, fill=n)) +"
+"0","  geom_bar(stat = ""identity"") +"
+"0","  theme(legend.position = ""none"") +"
+"0","  coord_flip() +  "
+"0","  labs(title = ""Top Two-Word phrases in Baltimore coverage"","
+"0","       caption = ""n=81 articles, 2024-2025. Graphic by Rob Wells. 2-22-2026"","
+"0","       x = ""Phrase"","
+"0","       y = ""Count of terms"")"

@@ -1,0 +1,19 @@
+"0",""
+"0","# Initialize spacy (one-time setup required: spacy_install())"
+"0","# Load English model. Other languages available"
+"0","spacy_install()"
+"1","Using Python: /opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14
+"
+"1","Creating virtual environment 'r-spacyr' ... 
+"
+"1","Done!
+"
+"1","Installing packages: pip, wheel, setuptools
+"
+"1","Installing packages: numpy
+"
+"1","Virtual environment 'r-spacyr' successfully created.
+"
+"1","Using virtual environment 'r-spacyr' ...
+"
+"0","spacy_initialize(model = ""en_core_web_sm"")"

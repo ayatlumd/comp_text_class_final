@@ -1,0 +1,16 @@
+"0","#cut useless returns"
+"0","XJjunk <- c(""UN-China-Human Rights"", ""ABORTION-MATERNITY"", ""ABORTION-GEORGIA"", ""hearings.Women"", ""SKI-WOMEN'S"", ""FIG-WOMEN'S"", ""extractivism"", ""pro-abortion-rights"", ""anti-abortion"", ""BelieveAllWomen"", ""enltrAbortion"")"
+"0","quanteda_west <- quanteda_test2 %>%"
+"0","  filter(!keyword %in% XJjunk)"
+"0",""
+"0",""
+"0","#Eliminate duplication"
+"0","quanteda_west <- quanteda_test2   %>% "
+"0","  distinct(docname, pre, keyword, post) %>% "
+"0","  rename('Beginning of Passage' = pre, 'End of Passage' = post) "
+"1","[1m[33mError[39m in `distinct()`:[22m
+[38;5;232m[33m![38;5;232m Must use existing variables.
+[31m✖[38;5;232m `pre` not found in `.data`.
+[31m✖[38;5;232m `post` not found in `.data`.[39m
+[90mRun `]8;;x-r-run:rlang::last_trace()rlang::last_trace()]8;;` to see where the error occurred.[39m
+"

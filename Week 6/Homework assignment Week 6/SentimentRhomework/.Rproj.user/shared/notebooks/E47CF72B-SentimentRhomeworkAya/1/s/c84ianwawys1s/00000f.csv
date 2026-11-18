@@ -1,0 +1,3 @@
+"0","articles_detailed_sentences <- articles %>%"
+"0","  get_sentences() %>%"
+"0","  sentiment()"

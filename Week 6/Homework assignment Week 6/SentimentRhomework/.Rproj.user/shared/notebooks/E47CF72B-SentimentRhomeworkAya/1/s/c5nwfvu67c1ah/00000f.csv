@@ -1,0 +1,7 @@
+"0","print(paste0(""The most positive article was scored at "", max(articles$ave_sentiment),"
+"0","             "" while the most negative was scored at "", min(articles$ave_sentiment),"
+"0","             "". For context, the median value was "", median(articles$ave_sentiment), "".""))"
+"1","[1]"
+"1"," ""The most positive article was scored at 0.759194696669143 while the most negative was scored at -0.317101324050226. For context, the median value was -0.0855235801217422."""
+"1","
+"

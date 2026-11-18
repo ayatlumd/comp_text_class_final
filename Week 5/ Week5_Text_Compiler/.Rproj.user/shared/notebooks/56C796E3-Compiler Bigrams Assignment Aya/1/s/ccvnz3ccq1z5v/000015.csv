@@ -1,0 +1,5 @@
+"0","Sentence_word_ct <- Sentence_tokenized %>%"
+"0","  count(word, sort=TRUE)"
+"0",""
+"0",""
+"0","head(Sentence_word_ct, 20)"

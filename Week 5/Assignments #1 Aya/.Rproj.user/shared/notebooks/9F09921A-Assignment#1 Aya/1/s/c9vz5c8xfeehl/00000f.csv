@@ -1,0 +1,2 @@
+"0","Black_index <- rio::import(""https://raw.githubusercontent.com/wellsdata/CompText_Jour/main/data/blackindex_master.csv"") %>%"
+"0","clean_names()"

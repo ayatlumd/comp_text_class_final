@@ -1,0 +1,45 @@
+"0","# Sentiment analysis aggregated by month with ""per article"" normalization"
+"0","sentiment_per_article <- sentiment_tokens |>"
+"0","  inner_join(afinn, by = c(""tokens"" = ""word"")) |>"
+"0","  group_by(yearmo) |>  "
+"0","  summarize("
+"0","    total_sentiment = sum(value),"
+"0","    article_count = n_distinct(article_nmbr),"
+"0","    # This is your ""per capita"" / per article metric"
+"0","    sentiment_per_article = total_sentiment / article_count,"
+"0","    .groups = ""drop"""
+"0","  ) |>"
+"0","  mutate(sentiment_type = ifelse(sentiment_per_article >= 0, ""Positive"", ""Negative""))"
+"0",""
+"0","# Quick check of the results"
+"0","print(sentiment_per_article)"
+"1","[38;5;246m# A tibble: 11 × 5[39m
+"
+"1","   yearmo    total_sentiment article_count sentiment_per_article
+"
+"1","   [3m[38;5;246m<yearmon>[39m[23m           [3m[38;5;246m<dbl>[39m[23m         [3m[38;5;246m<int>[39m[23m                 [3m[38;5;246m<dbl>[39m[23m
+"
+"1","[38;5;250m 1[39m Jan 2024              -[31m19[39m             1                 -[31m19[39m  
+"
+"1","[38;5;250m 2[39m Apr 2024              -[31m82[39m             1                 -[31m82[39m  
+"
+"1","[38;5;250m 3[39m Jun 2024              -[31m18[39m             1                 -[31m18[39m  
+"
+"1","[38;5;250m 4[39m Jul 2024              -[31m39[39m             2                 -[31m19[39m[31m.[39m[31m5[39m
+"
+"1","[38;5;250m 5[39m Aug 2024              -[31m43[39m             1                 -[31m43[39m  
+"
+"1","[38;5;250m 6[39m Sep 2024              -[31m22[39m             1                 -[31m22[39m  
+"
+"1","[38;5;250m 7[39m Oct 2024             -[31m443[39m             8                 -[31m55[39m[31m.[39m[31m4[39m
+"
+"1","[38;5;250m 8[39m Nov 2024             -[31m838[39m            12                 -[31m69[39m[31m.[39m[31m8[39m
+"
+"1","[38;5;250m 9[39m Dec 2024             -[31m549[39m            13                 -[31m42[39m[31m.[39m[31m2[39m
+"
+"1","[38;5;250m10[39m Jan 2025            -[31m[4m1[24m05[39m[31m0[39m            35                 -[31m30[39m  
+"
+"1","[38;5;250m11[39m Feb 2025             -[31m269[39m             6                 -[31m44[39m[31m.[39m[31m8[39m
+"
+"1","[38;5;246m# ℹ 1 more variable: sentiment_type <chr>[39m
+"

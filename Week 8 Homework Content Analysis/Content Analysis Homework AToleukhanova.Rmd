@@ -1,0 +1,187 @@
+---
+title: "Content Analysis Homework"
+author: "Aigerim Toleukhanova"
+date: "2026-10-21"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(stringr)
+```
+
+```{r}
+XJ_women <- read_csv("articles_df.csv") |> 
+  clean_names()
+
+```
+#Below are three initial research questions, their codebooks, and operational definitions:
+
+
+#RQ1: What types of “counternarratives” does Chinese media use when it comes to Xinjiang women? 
+
+Operational definition: 
+
+Counternarratives here are defined as explicit denial or rebuttal of human/women's rights abuses, providing counterevidence (in the form of personal testimony from relatives of the activist or alleged victims), protecting China's national interests (such as defense against terrorism, extremism, bringing progress and liberation to "backward" nations, etc.), using comparative 'double standards' (by comparing conditions elsewhere or claiming that standards are inconsistent), politicization of external powers (foreign interference or efforts to undermine China), and other types of counternarratives. 
+
+RQ1 codebook:
+
+RQ1_A: Explicit denial or rebuttal
+RQ1_B: Counterevidence
+RQ1_C: Protection of national interests
+RQ1_D: Comparison/Double Standard
+RQ1_E: External Powers
+RQ1_F: Other Counternarratives
+
+
+#RQ2: What are the most common topics Chinese media cover involving Xinjiang women? 
+
+Operational definitions:
+
+The topics that involve Xinjiang women, regardless of whether they are positive, negative or neutral, can be the following: 
+
+Employment or labor (the opportunities provided to these women, so they can work, earn money, start their businesses), education or vocational training (the professional skills they acquire through government programs that claim to give them opportunities for future employment), reproductive health (a topic that involves healthcare, reproductive rights, abortion, sterilization, etc), marriage and family (a topic that mentions women in the context of being married or opportunity to get married to either their own nation or Han Chinese, caregiving, divorce, household responsibilities), culture and identity (a topic that covers women's ethnic, culturacal identities, religious practices, traditions, and etc), securitization (a topic that involves the issues of extremism, terrorism, surveillance, police violence or extra security measures), media representation (women giving interviews, testimonies to journalists on various topics), other topics (not covered in the abovementioned list).
+
+
+RQ2 codebook:
+
+RQ2_A: Employment or Labor
+RQ2_B: Education or Training
+RQ2_C: Reproductive Health
+RQ2_D: Marriage and Family
+RQ2_E: Culture and Identity
+RQ2_F: Securitization
+RQ2_G: Media representation
+RQ2_H: Other Topics
+
+#RQ3: How are Xinjiang women portrayed in Chinese media coverage?
+
+Operational definitions: 
+
+Media portrayal of women in Chinese coverage can be operationalized in several roles: 1) Political activist/leader (an accomplished invidividual woman, most likely living outside of China, who has a certain political agency to give voice to other people who cannot speak for themselves); 2) Cultural Representative (a woman who is showing her cultural heritage through traditional dancing, clothes, or other customs, usually interviewed by journalists as part of showcasing diversity and multiethnic harmony in China); 3) Vulnerable Person (A woman, who has been harmed, suffered through certain political or non-political actions, most likely gave testimonies about her experiences as a direct witness); 4) Successful example (a skilled or accomplished woman who can be an entrepreneur, expert in certain areas, who has achieved professional heights); 5) Family Person (a woman whose main role is portrayed as centered around family values, caregiving, household responsibilites, children); 6) Other Portrayal
+
+
+RQ3 codebook: 
+
+RQ3_A: Political Activist/Leader
+RQ3_B: Cultural Representative
+RQ3_C: Vulnerable Person
+RQ3_D: Successful Example
+RQ3_E: Family Person
+RQ3_F: Other Portrayal
+
+
+#Four initial categories here are:
+
+1) Women (articles that focus/mention specifically women from Xinjiang in the Chinese media) - possibly, this category is not needed if the initial batch of articles is already filtered and contains all articles that mention or focus on women from Xinjiang. 
+2) Counternarratives (articles that have all the above-mentioned types of counternarratives)
+3) Topics (articles that put women in the specific topic categories)
+4) Women media portrayal (articles that assign certain roles for women)
+
+#Short note:
+
+These categories above are not mutually exclusive. One article can contain a counternarrative that provides counterevidence, for example, that women are not being abused and have many opportunities to thrive, etc. These are initial steps to filter and categorize the articles, but more refinement is needed after the content analysis pilot test.
+
+Below is the code as per the classwork example:
+
+
+```{r}
+XJ_women <- XJ_women |> 
+  mutate(
+    # Check each condition independently
+    has_women = if_else(str_detect(sentence, regex("Xinjiang women|Uyghur women|Muslim women|women", ignore_case = TRUE)), "women", NA_character_),
+    has_counternarratives = if_else(str_detect(sentence, regex("terrorism|extremism|radicalization|misconception|lie|western", ignore_case = TRUE)), "cntrnarr_term", NA_character_),
+    has_topics = if_else(str_detect(sentence, regex("emancipation|liberation|education|opportunities", ignore_case = TRUE)), "topics", NA_character_),
+    has_roles = if_else(str_detect(sentence, regex("activist|dancer|politician|in exile|family member|sister|aunt|daughter|entrepreneur", ignore_case = TRUE)), "roles", NA_character_),
+)|>
+  unite("category", has_women, has_counternarratives, has_topics, has_roles, sep = ", ", na.rm = TRUE)
+```
+
+
+#Short note 2:
+
+However, the assignment for homework specifically requires using "mutate" and "case_when", not "if_else". Therefore, I asked AI how to transform the code. The AI model is Perplexity; it doesn't have a specific model number or type. 
+
+Prompt text: "What if I leave this code with if_else? Is it correct and better than case_when?"
+AI Answer: Yes—leaving your code with  if_else()  is correct for a basic keyword-coding exercise. For the particular task of assigning a label when a keyword is present and  NA  otherwise,  if_else()  is arguably simpler, not inherently more accurate, than  case_when() . 
+
+Does  if_else()  handle overlapping codes better?
+Not inherently. Your codes overlap because you create separate columns independently—not because you use  if_else() .
+Both of these structures permit overlap:
+•	Separate  if_else()  expressions for topics, roles, and counternarrative terms.
+•	Separate  case_when()  expressions for those same three columns.
+What would prevent multiple labels is putting all three category conditions into one  case_when()  that returns a single category: only the first matching condition would be selected.[tidyverse]
+
+
+#I then asked to transform the case_when code from my previous example. Below is the code with case_when:
+
+```{r}
+XJ_women <- XJ_women |>
+  mutate(
+    # Check each condition independently
+    has_women = case_when(
+      str_detect(
+        sentence,
+        regex(
+          "Xinjiang women|Uyghur women|Muslim women|women",
+          ignore_case = TRUE
+        )
+      ) ~ "women",
+      TRUE ~ NA_character_
+    ),
+
+    has_counternarratives = case_when(
+      str_detect(
+        sentence,
+        regex(
+          "terrorism|extremism|radicalization|misconception|lie|western",
+          ignore_case = TRUE
+        )
+      ) ~ "cntrnarr_term",
+      TRUE ~ NA_character_
+    ),
+
+    has_topics = case_when(
+      str_detect(
+        sentence,
+        regex(
+          "emancipation|liberation|education|opportunities",
+          ignore_case = TRUE
+        )
+      ) ~ "topics",
+      TRUE ~ NA_character_
+    ),
+
+    has_roles = case_when(
+      str_detect(
+        sentence,
+        regex(
+          "activist|dancer|politician|in exile|family member|sister|aunt|daughter|entrepreneur",
+          ignore_case = TRUE
+        )
+      ) ~ "roles",
+      TRUE ~ NA_character_
+    )
+  ) |>
+  unite(
+    "category",
+    has_women,
+    has_counternarratives,
+    has_topics,
+    has_roles,
+    sep = ", ",
+    na.rm = TRUE
+  )
+
+```
+
+# Then, when counting categories, AI advised adding sort = TRUE because it would count each distinct value of category (while claiming that without it it counted combinations only, but I checked both versions and the only difference is just the descending order).
+
+```{r}
+XJ_women |> 
+  count(category, sort = TRUE)
+
+```
+
+

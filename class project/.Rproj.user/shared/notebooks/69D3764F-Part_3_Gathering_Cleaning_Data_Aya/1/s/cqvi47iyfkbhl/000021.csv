@@ -1,0 +1,6 @@
+"0",""
+"0","#put the count total in an object called Action"
+"0","Action <- SF |> "
+"0","  count(disposition) |> "
+"0","  arrange(n)"
+"0",""

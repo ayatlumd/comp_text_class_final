@@ -1,0 +1,4 @@
+"0","Sentence_tokenized <- articles_df %>%"
+"0","  unnest_tokens(word, sentence)"
+"0",""
+"0","Sentence_tokenized"

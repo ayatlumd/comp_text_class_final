@@ -1,0 +1,6 @@
+"0","#This processes dates for analysis, rearranges columns"
+"0","SF <- SF |> "
+"0","  mutate(call_date2 = mdy(call_date),"
+"0","         year = year(call_date2)) |> "
+"0","  select(crime_id, original_crime_type_name, call_date2, year, call_date_time, disposition, address, city, state, everything())"
+"0",""

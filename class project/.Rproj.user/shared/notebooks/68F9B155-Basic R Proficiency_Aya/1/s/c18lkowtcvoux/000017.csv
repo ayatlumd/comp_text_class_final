@@ -1,0 +1,4 @@
+"0","  mob_data %>%"
+"0","  count(Newspaper) %>%"
+"0","  arrange(desc(n)) %>%"
+"0","slice_head(n = 15)"

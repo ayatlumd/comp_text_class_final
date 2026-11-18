@@ -1,0 +1,5 @@
+"0",""
+"0","# Display results"
+"0","datatable(spacy_adj_noun_counts,"
+"0","          caption = ""Spacy Top adjective-noun pairs in Baltimore crime coverage"","
+"0","          options = list(pageLength = 10))"

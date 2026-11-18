@@ -1,0 +1,3 @@
+"0","XJ_women <- read_csv(""articles_df.csv"") |> "
+"0","  clean_names()"
+"0",""

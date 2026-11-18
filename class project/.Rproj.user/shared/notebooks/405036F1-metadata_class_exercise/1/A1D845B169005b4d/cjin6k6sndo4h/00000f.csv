@@ -1,0 +1,4 @@
+"0",""
+"0","data <- data |> "
+"0","  mutate(year = year(published_date))"
+"0",""

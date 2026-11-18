@@ -1,0 +1,6 @@
+"0","#Copy section of code from above..."
+"0","# SF %>% "
+"0","#    count(year) %>% "
+"0","#    group_by(year) %>% "
+"0","#Sandwich it onto a simple ggplot that you created in the prior code chunk"
+"0","  "

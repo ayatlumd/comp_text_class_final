@@ -1,0 +1,5 @@
+"0","#Import spreadsheet using rio::import and clean the names"
+"0",""
+"0",""
+"0","Xinjiang_women <- rio::import(""XJWM_list.XLSX"") "
+"0",""

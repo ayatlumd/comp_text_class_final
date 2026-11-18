@@ -1,0 +1,5 @@
+"0","textdata %>%"
+"0","  ungroup() %>%"
+"0","  distinct(doc_id, .keep_all = TRUE) %>%"
+"0","  count(year) %>%"
+"0","  arrange(year)"

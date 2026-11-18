@@ -1,0 +1,5 @@
+"0","Hlead_word_ct <- Hlead_tokenized %>%"
+"0","  count(word, sort=TRUE)"
+"0",""
+"0","#rsw comment: this code fails. Why? ""story_word_ct"" does not exist"
+"0","head(Hlead_word_ct, 20)"

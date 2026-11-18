@@ -1,0 +1,8 @@
+"0","  #using the code above"
+"0","SF %>%"
+"0","  select(weekday, crime_id, disposition) %>%"
+"0","  filter(grepl(""ARR"", disposition)) %>%"
+"0","  count(weekday) %>%"
+"0","  #and sandwich onto a graphic"
+"0","  ggplot(aes(x = weekday, y = n)) +"
+"0","  geom_point(aes(size = n, color = n))"

@@ -1,0 +1,438 @@
+---
+title: "Topic Modeling"
+author: "Aigerim Toleukhanova"
+date: "2026-11-11"
+output: html_document
+---
+
+
+```{r include=FALSE}
+# set options
+options(stringsAsFactors = F)         # no automatic data transformation
+options("scipen" = 100, "digits" = 4) # suppress math annotation
+# load packages
+here::here()
+library(tidyverse)
+library(tidytext)
+library(rio)
+library(readtext)
+#topic modeling
+library(quanteda)
+library(tm)
+library(topicmodels)
+library(lda)
+library(ldatuning)
+# from tutorial packages
+library(DT)
+library(knitr) 
+library(kableExtra) 
+library(reshape2)
+library(ggplot2)
+library(wordcloud)
+library(pals)
+library(SnowballC)
+library(flextable)
+
+```
+
+### Import Data
+
+```{r include=FALSE}
+#import text files that were compiled into a df  
+China <- read_csv("articles_df_china.csv")
+```
+
+# Topic Modeling Chinese Media Newspapers
+
+### Process into corpus object
+
+```{r}
+textdata <- China %>% 
+  select(filename, sentence, published_date) %>% 
+  as.data.frame() %>% 
+  rename(doc_id = filename, text= sentence) %>%
+  mutate(
+    parsed_date = ymd(published_date),
+    year = lubridate::year(parsed_date)
+  ) %>%
+  mutate(year=year(published_date))
+
+```
+
+### Remove stopwords, clean corpus
+
+```{r}
+# 1. Define standard stopwords
+english_stopwords <- stopwords("en")
+
+# 2. Build corpus
+corpus <- Corpus(DataframeSource(textdata))
+
+# 3. Clean in correct sequence
+processedCorpus <- tm_map(corpus, content_transformer(tolower))
+processedCorpus <- tm_map(processedCorpus, removePunctuation, preserve_intra_word_dashes = TRUE)
+processedCorpus <- tm_map(processedCorpus, removeNumbers)
+
+# Remove stopwords BEFORE stemming
+processedCorpus <- tm_map(processedCorpus, removeWords, english_stopwords)
+
+# Stem documents after removing stopwords
+processedCorpus <- tm_map(processedCorpus, stemDocument, language = "en")
+processedCorpus <- tm_map(processedCorpus, stripWhitespace)
+```
+
+```{r tm3a}
+#DTM: rows correspond to the documents in the corpus. Columns correspond to the terms in the documents. Cells correspond to the weights of the terms. (Girder)
+# compute document term matrix with terms >= minimumFrequency
+minimumFrequency <- 5
+DTM <- DocumentTermMatrix(processedCorpus, control = list(bounds = list(global = c(minimumFrequency, Inf))))
+# have a look at the number of documents and terms in the matrix
+dim(DTM)
+# due to vocabulary pruning, we have empty rows in our DTM
+# LDA does not like this. So we remove those docs from the
+# DTM and the metadata
+sel_idx <- slam::row_sums(DTM) > 0
+DTM <- DTM[sel_idx, ]
+textdata <- textdata[sel_idx, ]
+#5 term minimum[1] 1387 3019
+#5 term minimum[1] 308597 10339
+
+```
+
+##Asked AI how to append data by year, not decade, since simply mutating data by year would not work and results would still show in four decades. Below is the code Perplexity AI model gave it my prompt "this code shows by decades not per year, how to fix that?".
+
+
+
+```{r}
+# append year information for aggregation
+
+
+textdata <- textdata |>
+  dplyr::mutate(
+    year = lubridate::year(published_date)
+  ) 
+
+```
+
+```{r}
+textdata %>%
+  ungroup() %>%
+  distinct(doc_id, .keep_all = TRUE) %>%
+  count(year) %>%
+  arrange(year)
+```
+
+
+
+#Articles per year
+
+```{r}
+#install.packages("formattable")
+articles_years <- textdata %>% 
+  distinct(doc_id, .keep_all=TRUE) %>% 
+  count(year) %>% 
+  mutate(pct_total= (n/sum(n))) %>% 
+  mutate(pct_total= formattable::percent(pct_total)) %>% 
+  # mutate(pct_total = round(pct_total, 1)) %>% 
+  arrange(desc(year))
+
+library(kableExtra)
+articles_years %>%
+  kbl(caption = "China Articles by Year (n=205, 11/13/2026)", font_size = 30) %>%
+  kable_classic(full_width = F, html_font = "Cambria") %>% 
+  column_spec(1, bold = T, border_right = T) %>%
+  column_spec(2, width = "5em") %>% 
+  column_spec(3, width = "5em", background = "yellow") 
+
+
+
+#Fact check 205 articles
+sum(articles_years$n)
+```
+
+
+```{r tm12}
+# number of topics
+# K <- 20
+K <- 6
+# set random number generator seed
+set.seed(9161)
+#Latent Dirichlet Allocation, LDA
+topicModel2 <- LDA(DTM, K, method="Gibbs", control=list(iter = 500, verbose = 25, alpha = 0.2))
+tmResult <- posterior(topicModel2)
+theta <- tmResult$topics
+beta <- tmResult$terms
+topicNames <- apply(terms(topicModel2, 10), 2, paste, collapse = " ")  # reset topicnames
+```
+
+### Mean topic proportions per year
+
+```{r}
+# Step 1: Check dimensions
+n_theta <- nrow(theta)
+n_textdata <- length(textdata$year)
+
+cat("Number of rows in theta: ", n_theta, "\n")
+cat("Number of documents in textdata: ", n_textdata, "\n")
+
+# Check if textdata contains all the documents in theta
+common_ids <- intersect(rownames(theta), textdata$doc_id) # Assuming textdata has a 'doc_id' column
+
+# Filter textdata to include only the documents present in theta
+textdata_filtered <- textdata[textdata$doc_id %in% common_ids, ]
+
+# Check dimensions after filtering
+n_textdata_filtered <- nrow(textdata_filtered)
+cat("Number of documents in filtered textdata: ", n_textdata_filtered, "\n")
+
+# Ensure the lengths match now
+if (n_theta != n_textdata_filtered) {
+  stop("The number of rows in 'theta' still does not match the length of 'textdata_filtered$decade'.")
+}
+
+# Align rownames of theta with filtered textdata
+theta_aligned <- theta[rownames(theta) %in% textdata_filtered$doc_id, ]
+
+# Optional: Verify the order of documents
+if (!all(rownames(theta_aligned) == textdata_filtered$doc_id)) {
+  # If the order doesn't match, reorder one to match the other
+  textdata_filtered <- textdata_filtered[match(rownames(theta_aligned), textdata_filtered$doc_id), ]
+}
+
+# Ensure they are now aligned and can be combined
+if (!all(rownames(theta_aligned) == textdata_filtered$doc_id)) {
+  stop("The document IDs still do not match. Please check the data alignment.")
+}
+
+# Step 2: Combine data
+topic_data <- data.frame(theta_aligned, year = textdata_filtered$year)
+
+# Step 3: Aggregate data
+topic_proportion_per_year <- aggregate(. ~ year, data = topic_data, FUN = mean)
+
+
+# get mean topic proportions per decade
+# topic_proportion_per_decade <- aggregate(theta, by = list(decade = textdata$decade), mean)
+# set topic names to aggregated columns
+colnames(topic_proportion_per_year)[2:(K+1)] <- topicNames
+# reshape data frame
+vizDataFrame <- melt(topic_proportion_per_year, id.vars = "year")
+
+# #filter out 1960 - one article
+vizDataFrame <- vizDataFrame %>% 
+   filter(!year==2026)
+```
+
+#Examine topic names
+
+```{r}
+#enframe(): Converts a named list into a dataframe.
+topics <- enframe(topicNames, name = "number", value = "text") %>% 
+  unnest(cols = c(text)) 
+  
+topics
+```
+
+### Review the topics and determine a 1-2 word label after reading the source documents.
+
+```{r}
+
+#Topic 1	
+
+theta2 <- as.data.frame(theta)
+```
+
+
+```{r}
+
+#add categories
+
+vizDataFrame <- vizDataFrame %>% 
+  mutate(category = case_when(
+    str_detect(variable, "said peopl time year women one also uyghur mani told") ~ "narratives",
+    str_detect(variable, "china right human state countri intern report hong forc kong") ~ "rights_reports",
+    str_detect(variable, "educ train religi news law ethnic govern extrem group center") ~ "reeducation",
+    str_detect(variable, "time end global document reserv copyright right provid classif language english") ~ "history",
+    str_detect(variable, "china xinjiang develop peopl region percent tibet year countri ethnic") ~ "china_minorities",
+    str_detect(variable, "china xinjiang region uyghur autonom associ northwest photo word length") ~ "location",
+    ))
+
+
+```
+
+
+# Fact Check and Validate Topics
+
+Topic 1	said peopl time year women one also uyghur mani told
+Topic 2	china right human state countri intern report hong forc kong
+Topic 3	educ train religi news law ethnic govern extrem group center
+Topic 4	time end global document reserv copyright right provid classif language english
+Topic 5	china xinjiang develop peopl region percent tibet year countri ethnic
+Topic 6	china xinjiang region uyghur autonom associ northwest photo word length 
+
+### for narratives
+
+```{r}
+theta2 <- as.data.frame(theta)
+
+narratives <- theta2 %>% 
+  #renaming for a general topic
+  rename(narratives = '1') %>% 
+  top_n(20, narratives) %>%
+  arrange(desc(narratives)) %>% 
+  select(narratives)
+
+# Apply rownames_to_column
+narratives <- tibble::rownames_to_column(narratives , "story_id") 
+
+narratives$story_id <- gsub("X", "", narratives$story_id)
+
+head(narratives$story_id, 20)
+#Checks out
+
+
+```
+#for china_minorities
+
+```{r}
+theta2 <- as.data.frame(theta)
+
+china_minorities <- theta2 %>% 
+  #renaming for a general topic
+  rename(china_minorities = '5') %>% 
+  top_n(20, china_minorities) %>%
+  arrange(desc(china_minorities)) %>% 
+  select(china_minorities)
+
+# Apply rownames_to_column
+china_minorities <- tibble::rownames_to_column(china_minorities , "story_id") 
+
+china_minorities$story_id <- gsub("X", "", china_minorities$story_id)
+
+head(china_minorities$story_id, 20)
+#Checks out
+
+
+```
+
+### for history
+
+```{r}
+theta2 <- as.data.frame(theta)
+
+history <- theta2 %>% 
+  #renaming for a general topic
+  rename(history = '4') %>% 
+  top_n(20, history ) %>%
+  arrange(desc(history )) %>% 
+  select(history )
+
+# Apply rownames_to_column
+history  <- tibble::rownames_to_column(history , "story_id") 
+
+history $story_id <- gsub("X", "", history $story_id)
+
+head(history$story_id, 20)
+#Checks out
+
+
+```
+
+### for reeducation
+
+```{r}
+theta2 <- as.data.frame(theta)
+
+reeducation <- theta2 %>% 
+  #renaming for a general topic
+  rename(reeducation = '3') %>% 
+  top_n(20, reeducation ) %>%
+  arrange(desc(reeducation )) %>% 
+  select(reeducation )
+
+# Apply rownames_to_column
+reeducation  <- tibble::rownames_to_column(reeducation , "story_id") 
+
+reeducation $story_id <- gsub("X", "", reeducation $story_id)
+
+head(reeducation$story_id, 20)
+#Checks out 
+
+```
+
+
+#for location
+
+```{r}
+theta2 <- as.data.frame(theta)
+
+location <- theta2 %>% 
+  #renaming for a general topic
+  rename(location = '6') %>% 
+  top_n(20, location ) %>%
+  arrange(desc(location )) %>% 
+  select(location )
+
+# Apply rownames_to_column
+location  <- tibble::rownames_to_column(location , "story_id") 
+
+location $story_id <- gsub("X", "", location $story_id)
+
+head(location$story_id, 20)
+#Checks out 
+
+
+```
+#### for rights reports
+
+```{r}
+theta2 <- as.data.frame(theta)
+
+rights_reports<- theta2 %>% 
+  #renaming for a general topic
+  rename(rights_reports = '2') %>% 
+  top_n(20, rights_reports) %>%
+  arrange(desc(rights_reports)) %>% 
+  select(rights_reports)
+
+# Apply rownames_to_column
+rights_reports <- tibble::rownames_to_column(rights_reports, "story_id") 
+
+rights_reports$story_id <- gsub("X", "", rights_reports$story_id)
+
+head(rights_reports$story_id, 20)
+
+#Checks out 
+
+
+```
+
+
+#Figure 15: XJ_topic_modeling
+
+```{r}
+# plot topic proportions per year as bar plot
+ggplot(vizDataFrame, aes(x=year, y=value, fill=category)) + 
+  geom_bar(stat = "identity") + ylab("proportion") + 
+  scale_fill_manual(values = paste0(alphabet(20), "FF"), name = "year") + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+   scale_fill_manual(values=c("#9933FF",
+                              "#33FFFF",
+                              "red",
+                              "yellow",
+                              "darkblue",
+                              "green"))+
+    #                         "blue", 
+    #                          "pink"))+
+   #                           #"gray",
+   #                           #"orange")) +
+  labs(title = "Common Narratives in Xinjiang News Coverage from Chinese Newspapers",
+       subtitle = "Six probable topics in Chinese press sample. n=205",
+       caption = "Aggregate mean topic proportions per year Graphic by Aigerim Toleukhanova, 11-13-2026")
+
+```
+#Memo 250 words
+
+Topic modeling with the dataframe of Chinese papers covering Xinjiang women has produced six topics that were surprisingly relevant to the content of those 205 articles. The most relevant were topics #1 - narratives ("said peopl time year women one also uyghur mani told"), #2 - rights reports ("china right human state countri intern report hong forc kong"), #3 - reeducation ("educ train religi news law ethnic govern extrem group center") and #5 - china minorities ("china xinjiang develop peopl region percent tibet year countri ethnic"). The first three topics were most relevant. The word "mani" in topic #1 was puzzling to me, so I started reading articles in textdata file with keyword search. Most articles refer to political or economic "manipulation" by the US or the West in general, the word "manipulated" also appeared often, together with "manifesto" and "manifestation" (i.e. "manifesto of theocracy" as described in one article). Overall, it was more or less clear that topic #1 was a general description of who said what, who told what, about women and about Uyghurs. For topic #2, the articles suggest the reports by international human rights organizations that are "hostile" or "critical" of China. The word "forc" refers to "forced", which can relate to either forced labor of Uyghurs, or forced abortions and sterilizations of women. The topic #3 has a distinct them about the reasons why such things happen in China's Xinjiang, for example, people there undergo "educ"(education), "train"(training), there are certain "law"s that govern "ethnic" minorities and their "religi"on and some "extrem"ist groups. The topic #5 broadly is about ethnic minorities not only in Xinjiang, but also Tibet. There are articles that describe government policies to develop these regions, bring jobs, prosperity and education to those communities. The topics #4 ("time end global document reserv copyright right provid classif language english") and #6 ("china xinjiang region uyghur autonom associ northwest photo word length") are not so relevant as the former mainly has articles that describe the origin of the word "genocide" in English language, while the latter mainly refers to the location of the region. 
+One issue I had with ggplot is that it does not show all 6 topics, only 5 and NA. I tried to fix it with AI but it got worse, increasing NA space. I am not sure where to problem is, after all.
+    

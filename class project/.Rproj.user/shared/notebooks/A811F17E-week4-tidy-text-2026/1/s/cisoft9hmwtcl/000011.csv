@@ -1,0 +1,5 @@
+"0","lynch %>% "
+"0","  select(newspaper_state, filename) %>% "
+"0","  distinct(filename, .keep_all = TRUE) %>% "
+"0","  count(newspaper_state) %>% "
+"0","  arrange(desc(n))"

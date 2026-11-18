@@ -1,0 +1,22 @@
+"0","install.packages(""gutenbergr"")"
+"2","trying URL 'https://cran.rstudio.com/bin/macosx/sonoma-arm64/contrib/4.6/httr2_1.3.0.tgz'
+"
+"2","trying URL 'https://cran.rstudio.com/bin/macosx/sonoma-arm64/contrib/4.6/triebeard_0.4.1.tgz'
+"
+"2","trying URL 'https://cran.rstudio.com/bin/macosx/sonoma-arm64/contrib/4.6/readMDTable_0.4.0.tgz'
+"
+"2","trying URL 'https://cran.rstudio.com/bin/macosx/sonoma-arm64/contrib/4.6/urltools_1.7.3.1.tgz'
+"
+"2","trying URL 'https://cran.rstudio.com/bin/macosx/sonoma-arm64/contrib/4.6/gutenbergr_0.5.2.tgz'
+"
+"1","
+"
+"1",""
+"1","The downloaded binary packages are in
+	/var/folders/zz/0qdxzryd1_34m68y0q51j0wm0000gn/T//RtmpS0Wk8K/downloaded_packages"
+"1",""
+"1","
+"
+"0","library(gutenbergr)"
+"0",""
+"0","hgwells <- gutenberg_download(c(35, 36, 5230, 159))"

@@ -1,0 +1,2 @@
+"0","#This cleans column names"
+"0","SF <- clean_names(SF)"

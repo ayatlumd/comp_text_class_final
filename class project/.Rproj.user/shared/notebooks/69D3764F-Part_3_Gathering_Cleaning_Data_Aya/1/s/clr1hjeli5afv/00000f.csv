@@ -1,0 +1,6 @@
+"0","copspeak <- rio::import(""https://docs.google.com/spreadsheets/d/1l86DSZ5LWxlXTliXu06Iai0DiYXlJE4hUYBeddL0XXg/edit#gid=554934632"", sheet =""RadioCodes"")"
+"0","#head(copspeak)"
+"0",""
+"0","#HAN = Handled"
+"0","#ADV = Advised"
+"0","#GOA = Gone on arrival"

@@ -1,0 +1,4 @@
+"0","#136596 rows of text"
+"0","articles_df <-  read_csv(""articles_df.csv"") |> "
+"0","    mutate(year = year(published_date),"
+"0","           date = published_date)"

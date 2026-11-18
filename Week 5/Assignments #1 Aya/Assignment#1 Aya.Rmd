@@ -1,0 +1,86 @@
+---
+title: "Aya_Sept30_Assn1"
+author: "Aya"
+date: "2026-09-30"
+output: html_document
+---
+
+#Load relevant software libraries
+```{r}
+library(tidyverse)
+library(janitor)
+library(dplyr)
+library(ggplot2)
+```
+
+#Load the data
+```{r}
+Black_index <- rio::import("https://raw.githubusercontent.com/wellsdata/CompText_Jour/main/data/blackindex_master.csv") %>%
+clean_names()
+```
+
+#Using code, describe the number of rows and columns in the dataset. Use the print(Paste0....) to display the results in a sentence form. 
+
+```{r}
+print(paste0("This dataset has ", nrow(Black_index), " rows and ", ncol(Black_index), " columns. Each row in this dataset appears to describe a single article that appeared in newspaper between ", min(Black_index$year), " and ", max(Black_index$year), ". The articles appear to have been sourced from several historical newspaper databases and archives."))
+```
+
+#Create a table that displays a count of the top 20 newspaper_city entries. Filter out the NA values
+
+```{r}
+Black_index %>%
+  count(newspaper_city) %>%
+  slice_max(order_by = n, n = 20, with_ties = F)
+
+newspaper_city <- Black_index %>%
+  filter(!is.na(newspaper_city)) %>%
+  count(newspaper_city, sort = TRUE) %>%
+  slice_head(n = 20)
+
+newspaper_city
+```
+AI was consulted for "Filter NA" values because I forgot to create a new table "newspaper_city" in order to filter out NA values. Also, there are no 20 top cities, only 12, and 13 with NA values. 
+
+#Create a table that counts all entries by year. 
+
+```{r}
+Black_index |> 
+  distinct(file_name, .keep_all = TRUE) |> 
+  count(year) |> 
+  arrange(desc(n))
+```
+#Version1. This table counts all entries by year in descending order --> 1920 as the top year with 127 entries and 2002 as the last year with the n=1 (there are dozens of years with same value of 1).
+```{r}
+year_count <- Black_index %>%
+  count(year) %>%
+  arrange(year)
+
+year_count
+```
+#Version2. This table is in chronological order of years, regardless of the number of entries, starting from 1850 and ending with 2002.  
+
+
+#Create a simple column ggplot chart that shows the total entries by year
+
+```{r}
+Black_index %>%
+  count(year) %>%
+  arrange(desc(n)) %>%
+  ggplot(aes(x = year, y = n,
+             fill = n)) +
+  geom_col(position = "dodge") +
+  theme(legend.position = "none") +
+  labs(
+    title = "Total Newspaper Entries by Year",
+    y = "Number of Entries",
+    x = "Year",
+    caption = "Graphic by Aya, October 1, 2026"
+  )
+```
+#Memo 264 words
+
+According to the imported data, there are 12 top newspaper cities. Therefore, as per instructions, the number 20 could not be fulfilled. The dataset itself has 1803 rows and 30 columns. The top 5 newspaper cities are: Pittsburgh (151), Chicago (147), Atlanta (122), Norfolk (96), and New York (71). The top 5 year periods with the most entries are: 1920 (127), 1919 (108), 1946	(92), 1934 (65), and 1918 (64). The dataset would require some cleaning in certain columns, such as the "authors" column. It contains many NA entries that indicate dedication words rather than authors, such as "Special to Journal and Guide" or "Special to the Amsterdam News". The columns "black_press" and "black" seem to contradict each other. While "black press" is a clear indication, the column "black" is not. In places where "black_press" is marked as Y(YES), "black" has NA. The function of the column "sn" is also unclear.
+
+Overall, the 1920s seem to be the most active period for press publications. Atlanta city seems to be the only exception – a city in the South among other northeastern cities, one of the leaders in the number of publications. The number of newspaper publications rises roughly in the 1870s and then steadily decreases after the 1960s, which coincides with historical events such as active engagement in the Civil Rights Movement.
+
+One question I have is about filtering out NA values. Is it possible to do it without creating a new table? I have seen AI advise me to use the code "drop_na()", but it didn't work, and we didn't use it in class.

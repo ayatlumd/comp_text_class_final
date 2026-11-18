@@ -1,0 +1,7 @@
+"0","SF %>%"
+"0","   filter(disposition1 %in% c("
+"0","     ""Arrest"","
+"0","     ""Cited"","
+"0","     ""Criminal Activation"","
+"0","     ""SF Fire Dept Medical Staff engaged"""
+"0","   )) "

@@ -1,0 +1,5 @@
+"0","textdata <- China %>% "
+"0","  select(filename, sentence, published_date) %>% "
+"0","  as.data.frame() %>% "
+"0","  rename(doc_id = filename, text= sentence) %>%"
+"0","mutate(year=year(published_date))"

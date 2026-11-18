@@ -1,0 +1,4 @@
+"0","SF %>%"
+"0","  select(weekday, crime_id, disposition) %>%"
+"0","  filter(grepl(""ARR"", disposition)) %>%"
+"0","  count(weekday) "

@@ -1,0 +1,3 @@
+"0","#Look at the Types table: some columns have one code, some have two."
+"0","Types %>% "
+"0","  distinct()"

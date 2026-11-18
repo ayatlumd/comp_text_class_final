@@ -1,0 +1,4 @@
+"0","textdata <- lynch1 %>% "
+"0","  select(filename, sentence, year) %>% "
+"0","  as.data.frame() %>% "
+"0","  rename(doc_id = filename, text= sentence)"

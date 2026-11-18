@@ -1,0 +1,5 @@
+"0","articles |> "
+"0","  summarize(min = min(ave_sentiment),"
+"0","            max = max(ave_sentiment),"
+"0","            median = median(ave_sentiment),"
+"0","            sd = sd(ave_sentiment))"

@@ -1,0 +1,204 @@
+---
+title: "SentimentR homework"
+author: "Aigerim Toleukhanova"
+date: "2026-10-07"
+output: html_document
+---
+
+Assignment:
+
+#Part 1: 
+Use your content on the Sentimentr package. 
+Describe the minimum, maximum, median and standard deviation of the sentiment scores for all.
+
+#Loading libraries, packages are pre-installed. 
+
+```{r}
+library(tidyverse)
+library(sentimentr)
+library(lubridate)
+library(magrittr)
+```
+
+# In the provided template during the class my file would not work. So, to adapt the first code, I used AI to consult. It told me that my file has one row per line of text, so I needed to put each article's lines back together into one row per article.
+
+```{r}
+articles_df <- read_csv("articles_df.csv")
+articles <- articles_df |> 
+  filter(!is.na(sentence)) |> 
+  group_by(filename) |> 
+  summarize(published_date = first(published_date),
+            text = paste(sentence, collapse = " ")) |> 
+  mutate(year = year(as.Date(published_date))) |> 
+  mutate(id = row_number()) |> 
+  select(id, year, text)
+
+nrow(articles)   # number of articles = 78
+head(articles)
+```
+
+
+# Part 1: Sentiment analysis for all 78 articles
+
+```{r}
+articles_sentiment <- articles |> 
+  select(id, text) |> 
+  get_sentences() |> 
+  sentiment_by(by = c("id"))
+
+# As per AI suggestion, I needed to add the scores back to my articles, so it advised me this code to do that. 
+
+articles <- articles |> 
+  left_join(as_tibble(articles_sentiment) |> select(id, ave_sentiment), by = "id")
+```
+#The minimum sentiment score is -0.3171013, the maximum is 0.7591947, the median is -0.08552358, standard deviation is 0.1922006
+
+```{r}
+articles |> 
+  summarize(min = min(ave_sentiment),
+            max = max(ave_sentiment),
+            median = median(ave_sentiment),
+            sd = sd(ave_sentiment))
+```
+#The text summary code is below:
+
+```{r}
+print(paste0("The most positive article was scored at ", max(articles$ave_sentiment),
+             " while the most negative was scored at ", min(articles$ave_sentiment),
+             ". For context, the median value was ", median(articles$ave_sentiment), "."))
+```
+
+#Alternatively, one can use this code to show the most positive/negative sentences in the articles database. Here I used the most negative one number 62:
+
+```{r}
+articles$text[62]
+```
+
+# Part 2: Recent vs. older articles analysis
+
+#I am using summarize function to be able to cut the period in the middle the articles in each year. 
+
+```{r}
+articles |> 
+  group_by(year) |> 
+  summarize(number_of_articles = n(),
+            average_sentiment = mean(ave_sentiment))
+```
+
+#My articles date back from 2015 to 2026. I chose 2022 as the cutoff year as it is in the middle.Thus, two new tables are created: 1) recent_news with 24 articles 2) older_news with 54 articles (51 articles are from 2021 only). AI was used here to figure out the filtering function.
+
+```{r}
+cutoff <- 2022
+
+recent_news <- articles |> filter(year >= cutoff)
+older_news  <- articles |> filter(year < cutoff)
+```
+
+# Recent_news analysis: the minimum sentiment score is -0.2019526, the maximum is 0.7591947, median score is 0.141745 and standard deviation is 0.2249779.
+
+```{r}
+recent_sentiment <- recent_news |> 
+  select(id, text) |> 
+  get_sentences() |> 
+  sentiment_by(by = c("id"))
+
+as_tibble(recent_sentiment) |> 
+  summarize(min = min(ave_sentiment),
+            max = max(ave_sentiment),
+            median = median(ave_sentiment),
+            sd = sd(ave_sentiment))
+```
+
+# Older_news analysis: the minimum sentiment score is 0.3171013, maximum is 0.2558494, median is 0.1030433 and standard deviation is 0.1352019.
+
+```{r}
+older_sentiment <- older_news |> 
+  select(id, text) |> 
+  get_sentences() |> 
+  sentiment_by(by = c("id"))
+
+as_tibble(older_sentiment) |> 
+  summarize(min = min(ave_sentiment),
+            max = max(ave_sentiment),
+            median = median(ave_sentiment),
+            sd = sd(ave_sentiment))
+```
+# Part 3: Highlighting the positive and negative sentences in all of my text. It gives pretty good results, although some sentences that are increasingly emotional (in negative sense) are marked as neutral. More in the memo below.
+
+```{r}
+articles_detailed_sentences <- articles %>%
+  get_sentences() %>%
+  sentiment()
+```
+
+```{r}
+articles_detailed_sentences %>%
+   # filter(sentence_id %in% sample(unique(sentence_id), 3)) %>%
+    mutate(review = get_sentences(text)) %$%
+    sentiment_by(review, sentence_id) %>%
+    highlight()
+```
+
+# Part 4: Profanity score analysis: 
+
+
+```{r message=FALSE, warning=FALSE}
+
+articles_profanity <- articles |> 
+  get_sentences() %>%
+  profanity_by(by = c("id"))
+
+```
+
+#What is the most negative sentence? Article under number 6. 
+
+```{r}
+
+articles$text[6]
+
+```
+#Alternative option for lexicon and search for "emotion" sentiment in my articles below. AI was consulted to adapt the code to my articles and format because the classroom template did not work.
+
+#It gave the following results: 
+
+#token        n      emotion
+
+#association	480	     trust		
+#government 	297	     fear		
+#forced	      140	     fear		
+#law	        129	     trust		
+#birth	      126	     anticipation		
+#birth	      126	     fear
+
+```{r}
+
+library(lexicon)
+
+# Splitting my articles into individual lowercase words and counting them
+word_counts <- tibble(token = str_extract_all(str_to_lower(paste(articles$text, collapse = " ")), "[a-z']+")[[1]]) |> 
+  count(token, sort = TRUE)
+
+# Keeping only the words that are in the emotion lexicon
+emotion_found <- word_counts |> 
+  inner_join(hash_nrc_emotions, by = "token")
+
+head(emotion_found)
+
+```
+#Memo 436 words
+
+Part 1 of the assignment was a bit complicated because it took me a while to adapt the code. The sentiment scores for all 78 articles in my articles_df.csv file are: min -0.3171013, max 0.7591947, median -0.08552358, sd 0.1922006. When divided into recent (24) and older (54) articles, there is a slight difference:
+
+Part 2 is about dividing the data in part 1 into two categories:
+
+Recent: min -0.2019526, max 0.7591947, median 0.141745 and sd 0.2249779
+
+vs.
+
+Older: min -0.3171013, max 0.2558494, median -0.1030433 and sd 0.1352019
+
+This might suggest that Older articles have more negative sentiment and less positive. It is important to note that older articles also have the most extensive coverage, 54 articles, and 51 were published in 2021 alone. This coincides with global interest in the Chinese re-education camps and repression towards the indigenous population of Xinjiang. 
+
+Part 3 of the assignment divides the articles into sentences to provide sentiment analysis, though with major flaws. This sentiment analysis missed the specifics of certain sentences and marked them as neutral or positive instead. For example, a sentence, "Her daughters begged her to stay, Abbas said in an interview." is marked as neutral (.000), just like the phrase "Six days later they took my own sister.", which has clearly negative connotations that imply kidnapping. The "neutral" phrase is also this one: "Experts estimate more than a million members of ethnic minorities have been put in internment camps since the campaign began." A sentence such as "Her advocacy is at the cost of my own sister's freedom, so it is very personal to me." is marked as positive and given +.310 points. Another "positive" phrase in a different article is this: "She is serving a sentence with all legitimate rights guaranteed." and this: "Thirty-nine countries including Britain, the United States and Germany last week condemned China for its Xinjiang policies." Sentiment analysis may be a great tool for analyzing large volumes of articles, but if you look closely, it may not account for context and other nuances that are crucial in such text analysis. Human oversight is always needed, and probably another more advanced sentimentr package.  
+
+In part 4, I examined the profanity with the highest score (most negative): article 6, followed by article 44. The emotion score from the lexicon package has shown that the most frequent "emotions" are "trust" and "fear," which are linked to words such as "association" and "law" for the former, and "government", "forced," and "birth" for the latter. The word "birth" also had another emotion: "anticipation." 

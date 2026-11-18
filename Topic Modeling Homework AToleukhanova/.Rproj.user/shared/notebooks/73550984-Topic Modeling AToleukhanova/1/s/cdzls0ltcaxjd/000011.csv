@@ -1,0 +1,17 @@
+"0",""
+"0","topic1 <- theta2 %>% "
+"0","  # rownames_to_column(var = ""file"") |> # putting the rownames into a new column called file"
+"0","  mutate(file = str_remove(file, ""^X""),  # Remove leading 'X'"
+"0","         line = str_extract(file, ""(?<=\\.txt)\\.\\d+"")) |>   # Extract number after .txt"
+"0","  mutate(file = str_remove(file, ""\\.\\d+$"")) |> "
+"0"," rename(topic1 = '1') |> # looking at first topic: ounti citi night mile jail day town morn march juli"
+"0"," top_n(20, topic1) |>"
+"0"," arrange(desc(topic1))  |>"
+"0","  select(file, line, topic1)"
+"1","[1m[33mError[39m in `mutate()`:[22m
+[38;5;232m[36mℹ[38;5;232m In argument: `file = str_remove(file, ""^X"")`.[39m
+[1mCaused by error in `str_replace()`:[22m
+[33m![39m `string` must be a vector, not a function.
+[34mℹ[39m Read our FAQ about ]8;;ide:help:vctrs::faq_error_scalar_typescalar types]8;; to learn more.
+[90mRun `]8;;x-r-run:rlang::last_trace()rlang::last_trace()]8;;` to see where the error occurred.[39m
+"

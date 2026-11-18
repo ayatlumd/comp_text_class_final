@@ -1,0 +1,10 @@
+"0","dugin <- dugin |> "
+"0","  mutate("
+"0","    # Check each condition independently"
+"0","    has_putin = if_else(str_detect(sentence, regex(""Putin"", ignore_case = TRUE)), ""Putin"", NA_character_),"
+"0","    has_polar = if_else(str_detect(sentence, regex(""fascist|beard|brain"", ignore_case = TRUE)), ""polarized_term"", NA_character_)"
+"0","  ) %>%"
+"0","  # Combine non-NA terms into a single string separated by commas"
+"0","  unite(""category"", has_putin, has_polar, sep = "", "", na.rm = TRUE)"
+"2","Error: object 'dugin' not found
+"

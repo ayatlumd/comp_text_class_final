@@ -1,0 +1,229 @@
+---
+title: "Metadata"
+author: "Wells"
+date: "2026-09-15"
+output: html_document
+---
+
+Class exercise to import your project metadata from the spreadsheet into R 
+
+--Create a folder called "class_project" in your code folder 
+
+--Save this file to the "class_project" folder 
+
+--Move your Nexis spreadsheet to the folder 
+
+--Create a project file on R Studio: File \| New Project \| \*\*\* select Existing folder \| "class_project" 
+
+--After project.Rproj launches, then launch this file, metadata.Rmd, and complete the tutorial
+
+**By doing this, you avoid the ring of hell where R can't find your data**
+
+#load tidyverse, janitor, rio
+
+```{r}
+
+library(tidyverse)
+library(janitor)
+library(rio)
+#install.packages("readxl")
+library(readxl)
+
+```
+
+#Import your data
+
+```{r}
+
+data <- read_excel("Xinjiang_women.XLSX") |>
+  clean_names()
+View(data)
+
+names(data)
+```
+
+# Clean names
+
+```{r}
+data <- data |> 
+  clean_names()
+
+```
+
+# check data types
+```{r}
+glimpse(data)
+```
+
+
+Next Steps: Count years, and create a ggplot
+
+# Transform date into years. See tutorial
+```{r}
+
+data <- data |> 
+  mutate(year = year(published_date))
+
+```
+
+#count
+```{r}
+data |> 
+  count(year)
+```
+year      n
+2015      1
+2018      1
+2020      1
+2021     62
+2022      9
+2023      9
+2024      8
+2025      5
+2026      4
+
+#publication
+```{r}
+data |> 
+  count(publication_4)|>
+  arrange(desc(n))
+```
+
+Top 10 publications and the number of articles
+
+publication_4 - n
+
+CE Noticias Financieras English	- 14			
+China Daily	- 13			
+The Independent (United Kingdom) -	13			
+Global Times (China)	- 9			
+China Daily European Edition	- 6			
+China Daily (Hong Kong Edition)	- 5			
+Financial Times (London, England)	- 4			
+MailOnline	- 4			
+Postmedia Breaking News	- 3			
+The Times (London)	- 3	
+
+#country
+```{r}
+data |> 
+  count(countries)|>
+arrange(desc(n))
+```
+Top 10 (plus NA) countries and the number of publications: 
+
+countries - n
+
+China, People's Republic of	- 30	
+United Kingdom of Great Britain and Northern Ireland	- 18	
+England & Wales	- 14	
+Mexico	- 14	
+Australia	- 5	
+Canada	- 5	
+China, People's Republic of\nHong Kong Special Administrative Region of China	- 4	
+India, Republic of	- 3	
+NA	- 3	
+Botswana, Republic of	- 1	
+
+#company
+```{r}
+data |> 
+  count(company)|>
+arrange(desc(n))
+```
+Top 8 companies and the number of publications:
+
+company (including NA) - n
+
+NA	- 70			
+TWITTER INC	- 11			
+ASSOCIATED PRESS	- 7			
+FACEBOOK INC	- 4			
+METROPOLITAN BANK HOLDING CORP	- 3			
+NATIONAL PRESS CLUB	- 2			
+EUROPEAN PARLIAMENT	- 1			
+ROOTS CORP	- 1			
+SEA LTD	- 1	
+
+#length
+
+```{r}
+
+data_big <- data |> 
+  mutate(length1=as.numeric(length)) |>
+  filter(length1 > 2903 & length1 <2505)
+
+  #count(length)|>
+#arrange(desc(n))
+```
+
+
+# Create a ggplot
+```{r}
+data |> 
+  count(year) |> 
+   ggplot(aes(x = year, y = n,
+             fill = n)) +
+  geom_col(position = "dodge") + 
+  theme(legend.position = "none") +
+  scale_x_continuous(breaks=c(2015:2026)) + #fixes wonky x axis
+  labs(title = "Years for Xinjiang Women Research",
+       subtitle = "Limited NexisUni Run",
+       caption = "Graphic by Aya, 9-15-2026",
+       y="Number of Articles",
+       x="")
+
+
+
+```
+
+#Count publications
+
+```{r}
+data |> 
+  count(publication_4) |>
+arrange(desc(n))
+```
+publication_4 - n
+
+CE Noticias Financieras English	- 14			
+China Daily	- 13			
+The Independent (United Kingdom) - 13			
+Global Times (China)	- 9			
+China Daily European Edition	- 6			
+China Daily (Hong Kong Edition)	- 5			
+Financial Times (London, England)	- 4			
+MailOnline	- 4			
+Postmedia Breaking News	- 3			
+The Times (London)	- 3	
+
+#Visualize publications
+
+```{r}
+data |> 
+  count(publication_4) |>
+#arrange(desc(n)) |>
+# ggplot(aes(x = publication_4, y = n,
+            # fill = n)) +
+  ggplot(aes(x=reorder(publication_4, n), y=n, fill=n)) +
+  geom_col(position = "dodge") + 
+  theme(legend.position = "none") +
+ #scale_x_continuous(breaks=c(2015:2026)) + #fixes wonky x axis
+  coord_flip() +
+  labs(title = "Years for Xinjiang Women Research",
+       subtitle = "Limited NexisUni Run",
+       caption = "Graphic by Aya, 9-15-2026",
+       y="Publication",
+       x="")
+
+```
+
+
+
+
+# NOTES ON FIXING COMPLEX Date COLUMN WITH HOURS AND MINUTES
+
+```{r}
+#women <- women |> 
+ # mutate(date = as.Date(strptime(published_date, format = "%B %d, %Y %A")))
+```

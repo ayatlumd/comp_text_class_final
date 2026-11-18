@@ -1,0 +1,8 @@
+"0","# append year information for aggregation"
+"0",""
+"0",""
+"0","textdata <- textdata |>"
+"0","  dplyr::mutate("
+"0","    year = lubridate::year(published_date)"
+"0","  ) "
+"0",""

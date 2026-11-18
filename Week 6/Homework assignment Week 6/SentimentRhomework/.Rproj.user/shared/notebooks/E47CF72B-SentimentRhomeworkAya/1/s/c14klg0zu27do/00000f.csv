@@ -1,0 +1,5 @@
+"0",""
+"0","articles_profanity <- articles |> "
+"0","  get_sentences() %>%"
+"0","  profanity_by(by = c(""id""))"
+"0",""

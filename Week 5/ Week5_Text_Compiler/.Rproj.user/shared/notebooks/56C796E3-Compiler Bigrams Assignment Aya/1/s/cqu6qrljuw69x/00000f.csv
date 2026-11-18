@@ -1,0 +1,7 @@
+"0","#load tidyverse, tidytext, rio, janitor libraries"
+"0",""
+"0","library(tidyverse)"
+"0","library(tidytext)"
+"0","library(rio)"
+"0","library(janitor)"
+"0",""

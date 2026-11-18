@@ -1,0 +1,5 @@
+"0","trump_profane <- trump %>%"
+"0","  get_sentences() %>%"
+"0","  profanity_by(by = c(""id""))"
+"0",""
+"0",""

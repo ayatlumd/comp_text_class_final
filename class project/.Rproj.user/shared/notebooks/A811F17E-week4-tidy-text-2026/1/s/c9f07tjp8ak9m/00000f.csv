@@ -1,0 +1,6 @@
+"0","trigrams2 <- trigrams2|> "
+"0","  filter(!word1 %in% stop_words$word) |> "
+"0","  filter(!word2 %in% stop_words$word)|> "
+"0","  filter(!word3 %in% stop_words$word) |> "
+"0","  count(word1, word2, word3, sort = TRUE) |> "
+"0","  mutate(decade = ""post1940"")"

@@ -1,0 +1,7 @@
+"0","# Then run your annotation"
+"0","annotated_text <- udpipe_annotate(udmodel, "
+"0","                                 x = baltimore$text, "
+"0","                                 doc_id = baltimore$index,"
+"0","                                   parser = ""default"","
+"0","                                   tagger = ""default"")"
+"0","annotated_df <- as.data.frame(annotated_text)"
