@@ -61,6 +61,52 @@ First, create H1 headers
 
 ## Looking at wealth inequality in Charm City
 
+```{r}
+#| message: false
+#| warning: false
+
+#install.packages("sentimentr")
+library(tidyverse)
+library(sentimentr)
+library(tidyr)
+```
+
+
+
+# Example dataframe
+
+```{r}
+reviews <- tibble(
+  id = 1:4,
+  text = c(
+    "The food was not good, but the service was extremely friendly.",
+    "I barely enjoyed the movie, although the actors were talented.",
+    "I am a vampire and I'm going to kill you and suck out your blood.",
+    "I am excited that you are so happy."
+  )
+)
+```
+
+# 1. Split into sentences and calculate sentiment at the sentence level
+```{r}
+sentence_sentiment <- reviews %>%
+  get_sentences() %>%
+  sentiment_by(by = c("id")) # Summarizes back to row/document level if desired
+```
+
+
+
+# View sentence-by-sentence detailed breakdown
+```{r}
+detailed_sentences <- reviews %>%
+  get_sentences() %>%
+  sentiment()
+
+head(detailed_sentences)
+```
+
+
+
 ```{r eval=FALSE, include=TRUE}
 
 # You will write your code in chunks but not execute the data. Use {r eval=FALSE, include=TRUE} in the header so the page will render without running the actual code.
