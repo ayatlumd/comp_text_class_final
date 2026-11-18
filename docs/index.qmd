@@ -245,13 +245,13 @@ income_vacancy %>%
 
 - In a QMD file, display the image as follows:
 
-\#![CAPTION FOR YOUR PHOTO](images/your_link_here.png)
+\#![CAPTION FOR YOUR PHOTO](images/bubble.png)
 
-\#![CHATTER FOR YOUR chart](images/xl-refresher-grid_SHEETS.png)
+\#![CHATTER FOR YOUR chart](images/group_by.png)
 
 A more advanced technique controlling the width and height
 
-\#![Read the Screen](images/xl-refresher-SHEETS_screen.png){width="100%"}
+\#![Read the Screen](images/group_by.png){width="100%"}
 
 ### Embedding code
 
