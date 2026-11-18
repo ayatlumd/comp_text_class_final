@@ -1,13 +1,13 @@
 ---
 title: "Hosting a GitHub Page"
-author: "Rob Wells"
-date: "6-1-2026"
+author: "Aigerim Toleukhanova"
+date: "11-18-2026"
 format:
   html:
     theme: cosmo
 ---
 
-fixed. test
+
 
 
 # Hosting a GitHub Page - R Cheat Sheet
@@ -64,16 +64,95 @@ First, create H1 headers
 
 ## Looking at wealth inequality in Charm City
 
-```{r}
-#| message: false
-#| warning: false
-
-#install.packages("sentimentr")
+```{r message=FALSE, warning=FALSE}
 library(tidyverse)
+library(rio)
+library(janitor)
 library(sentimentr)
 library(tidyr)
+
 ```
 
+```{r message=FALSE}
+SF <- rio::import("https://docs.google.com/spreadsheets/d/1-nkosLJKkfeLSl-UG82DDyiEw5-62kX2alS6ICG9iuk/edit#gid=552005485", sheet = "SF Police_Department_Calls_for_") 
+```
+
+```{r}
+#display the first six rows of SF using head
+head(SF)
+```
+
+
+```{r}
+#examine all of the SF data using glimpse
+glimpse(SF)
+```
+
+```{r}
+#This cleans column names
+SF <- janitor::clean_names(SF)
+#This processes dates for analysis
+glimpse(SF)
+```
+
+```{r}
+#This cleans column names
+SF <- janitor::clean_names(SF)
+#This processes dates for analysis
+SF$call_date2 <- mdy(SF$call_date)
+#This creates a new column for year
+SF$year <- year(SF$call_date2)
+```
+
+```{r}
+#descending order
+SF1 <- SF %>% 
+arrange(desc(report_date))
+#head(SF1)
+```
+
+```{r}
+Years <- SF %>% 
+   group_by(year) %>% 
+  count(year) %>% 
+  arrange(desc(year))
+head(Years)
+```
+
+```{r}
+ggplot(data=Years) +
+  geom_col(mapping=aes(x=year, y=n)) 
+
+```
+
+```{r}
+ggplot(data=Years) +
+  geom_col(mapping=aes(x=year, y=n, fill=n)) 
+
+```
+
+```{r}
+
+ggplot(Years,aes(x = year, y = n,
+             fill = n)) +
+  geom_col(position = "dodge") + 
+  theme(legend.position = "none")
+
+```
+
+```{r}
+
+ggplot(Years,aes(x = year, y = n,
+             fill = n)) +
+  geom_col(position = "dodge") + 
+  theme(legend.position = "none") +
+#This is your title sequence
+  labs(title = "311 Calls for Service By Day, San Francisco",
+       subtitle = "SF PD Service Call Data, 2016-2019",
+       caption = "Graphic by Rob Wells, 2-12-2022",
+       y="Number of Calls",
+       x="Year")
+```
 
 
 # Example dataframe
