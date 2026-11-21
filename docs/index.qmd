@@ -1,7 +1,7 @@
 ---
 title: "Hosting a GitHub Page"
 author: "Aigerim Toleukhanova"
-date: "11-18-2026"
+date: "11-20-2026"
 format:
   html:
     theme: cosmo
@@ -282,7 +282,7 @@ The embed code is in the video share feature
 ```{r text_to_columns.gif, out.width="100%", echo=FALSE}
 ### Embed a GIF
 #First, download a GIF (extension will be .gif) and load it into "images" folder
-#if (knitr::is_html_output()) knitr::include_graphics("images/cat.gif")  
+if (knitr::is_html_output()) knitr::include_graphics("images/cat.gif")  
 
 ```
 
