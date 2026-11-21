@@ -7,9 +7,6 @@ format:
     theme: cosmo
 ---
 
-
-
-
 # Hosting a GitHub Page - R Cheat Sheet
 
 This exercise will allow you to create a basic web page which will be required for the Investigate Your Community final project option.
@@ -82,7 +79,6 @@ SF <- rio::import("https://docs.google.com/spreadsheets/d/1-nkosLJKkfeLSl-UG82DD
 head(SF)
 ```
 
-
 ```{r}
 #examine all of the SF data using glimpse
 glimpse(SF)
@@ -154,7 +150,6 @@ ggplot(Years,aes(x = year, y = n,
        x="Year")
 ```
 
-
 # Example dataframe
 
 ```{r}
@@ -170,15 +165,15 @@ reviews <- tibble(
 ```
 
 # 1. Split into sentences and calculate sentiment at the sentence level
+
 ```{r}
 sentence_sentiment <- reviews %>%
   get_sentences() %>%
   sentiment_by(by = c("id")) # Summarizes back to row/document level if desired
 ```
 
-
-
 # View sentence-by-sentence detailed breakdown
+
 ```{r}
 detailed_sentences <- reviews %>%
   get_sentences() %>%
@@ -186,8 +181,6 @@ detailed_sentences <- reviews %>%
 
 head(detailed_sentences)
 ```
-
-
 
 ```{r eval=FALSE, include=TRUE}
 
@@ -252,6 +245,7 @@ income_vacancy %>%
 A more advanced technique controlling the width and height
 
 \#![Read the Screen](images/group_by.png){width="100%"}
+
 
 ### Embedding code
 
